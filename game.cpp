@@ -1,5 +1,7 @@
 #include "game.h"
 #include "surface.h"
+#include "template.h"
+#include "input.h"
 #include <cstdio> //printf
 
 namespace Tmpl8
@@ -7,6 +9,7 @@ namespace Tmpl8
 	// -----------------------------------------------------------
 	// Initialize the application
 	// -----------------------------------------------------------
+
 	void Game::Init()
 	{
 	}
@@ -18,23 +21,22 @@ namespace Tmpl8
 	{
 	}
 
-	static Sprite rotatingGun(new Surface("assets/aagun.tga"), 36);
-	static int frame = 0;
-
 	// -----------------------------------------------------------
 	// Main application tick function
 	// -----------------------------------------------------------
 	void Game::Tick(float deltaTime)
 	{
-		// clear the graphics window
-		screen->Clear(0);
-		// print something in the graphics window
-		screen->Print("hello world", 2, 2, 0xffffff);
-		// print something to the text window
-		printf("this goes to the console window.\n");
-		// draw a sprite
-		rotatingGun.SetFrame(frame);
-		rotatingGun.Draw(screen, 100, 100);
-		if (++frame == 36) frame = 0;
+		// Example of input implementation
+		vec2 mousePosition = Input::GetMousePosition();
+
+		if (Input::GetKeyDown(SDLK_q)) printf("Q Down\n");
+		if (Input::GetKey(SDLK_q)) printf("Q Held\n");
+		if (Input::GetKeyUp(SDLK_q)) printf("Q Up\n");
+
+		if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) printf("Left Down\n");
+		if (Input::GetMouseButton(SDL_BUTTON_RIGHT)) printf("Right Held\n");
+		if (Input::GetMouseButtonUp(SDL_BUTTON_MIDDLE)) printf("Middle Up\n");
+
+		Input::Update();
 	}
 };

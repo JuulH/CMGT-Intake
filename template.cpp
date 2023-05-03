@@ -14,6 +14,7 @@
 //#define ADVANCEDGL
 
 #include "game.h"
+#include "input.h"
 
 #include <fcntl.h>
 #include <io.h>
@@ -300,12 +301,18 @@ void swap()
 
 int main( int argc, char **argv ) 
 {  
+	SDL_SetHintWithPriority(SDL_HINT_RENDER_VSYNC, "0", SDL_HINT_OVERRIDE);
+
 #ifdef _MSC_VER
     if (!redirectIO())
         return 1;
 #endif
-	printf( "application started.\n" );
+	SDL_version version;
+	SDL_GetVersion(&version);
+	printf("SDL Version: %d.%d.%d\n", version.major, version.minor, version.patch);
+
 	SDL_Init( SDL_INIT_VIDEO );
+
 #ifdef ADVANCEDGL
 #ifdef FULLSCREEN
 	window = SDL_CreateWindow(TemplateVersion, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_FULLSCREEN|SDL_WINDOW_OPENGL );
@@ -382,19 +389,22 @@ int main( int argc, char **argv )
 					exitapp = 1;
 					// find other keys here: http://sdl.beuc.net/sdl.wiki/SDLKey
 				}
-				game->KeyDown( event.key.keysym.scancode );
+				Input::SetKeyState(event.key.keysym.sym, true);
 				break;
 			case SDL_KEYUP:
-				game->KeyUp( event.key.keysym.scancode );
+				Input::SetKeyState(event.key.keysym.sym, false);
 				break;
 			case SDL_MOUSEMOTION:
-				game->MouseMove( event.motion.xrel, event.motion.yrel );
+				Input::SetMousePosition(event.motion.x, event.motion.y);
 				break;
 			case SDL_MOUSEBUTTONUP:
-				game->MouseUp( event.button.button );
+				Input::SetMouseState(event.button.button, false);
 				break;
 			case SDL_MOUSEBUTTONDOWN:
-				game->MouseDown( event.button.button );
+				Input::SetMouseState(event.button.button, true);
+				break;
+			case SDL_MOUSEWHEEL:
+				Input::SetMouseWheel(event.wheel.y);
 				break;
 			default:
 				break;
