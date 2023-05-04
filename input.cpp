@@ -7,17 +7,17 @@ namespace Tmpl8 {
 	int Input::mouseWheel = 0;
 	vec2 Input::mousePosition = vec2(0, 0);
 
-	bool Input::GetKeyDown(int key) {
+	bool Input::GetKeyDown(SDL_Scancode key) {
 		if (key < 0 || key > keys) return false;
 		return keyStates[key] == 1;
 	}
 	
-	bool Input::GetKeyUp(int key) {
+	bool Input::GetKeyUp(SDL_Scancode key) {
 		if (key < 0 || key > keys) return false;
 		return keyStates[key] == 3;
 	}
 	
-	bool Input::GetKey(int key) {
+	bool Input::GetKey(SDL_Scancode key) {
 		if (key < 0 || key > keys) return false;
 		return keyStates[key] == 2;
 	}
@@ -35,7 +35,7 @@ namespace Tmpl8 {
 	}
 
 	// 0 = inactive, 1 = pressed, 2 = held, 3 = released
-	void Input::SetKeyState(int key, bool state) {
+	void Input::SetKeyState(SDL_Scancode key, bool state) {
 		if (key < 0 || key > keys) return;
 		if (keyStates[key] == 2 && state) return; // Key already held
 		keyStates[key] = state ? 1 : 3;

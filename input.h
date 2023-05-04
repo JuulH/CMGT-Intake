@@ -3,7 +3,7 @@
 #include <SDL_keycode.h>
 #include <SDL_mouse.h>
 
-constexpr int keys = 261;
+constexpr int keys = SDL_NUM_SCANCODES;
 constexpr int mouseButtons = 5;
 
 namespace Tmpl8 {
@@ -11,10 +11,10 @@ namespace Tmpl8 {
 class Input
 {
 public:
-	static bool GetKeyDown(int key);
-	static bool GetKeyUp(int key);
-	static bool GetKey(int key);
-	static void SetKeyState(int key, bool state);
+	static bool GetKeyDown(SDL_Scancode key);
+	static bool GetKeyUp(SDL_Scancode key);
+	static bool GetKey(SDL_Scancode key);
+	static void SetKeyState(SDL_Scancode key, bool state);
 
 	static bool GetMouseButtonDown(int button);
 	static bool GetMouseButtonUp(int button);

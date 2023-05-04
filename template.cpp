@@ -399,10 +399,10 @@ int main( int argc, char **argv )
 						SDL_SetWindowFullscreen(window, 0);
 					}
 				}
-				Input::SetKeyState(event.key.keysym.sym, true);
+				Input::SetKeyState(event.key.keysym.scancode, true);
 				break;
 			case SDL_KEYUP:
-				Input::SetKeyState(event.key.keysym.sym, false);
+				Input::SetKeyState(event.key.keysym.scancode, false);
 				break;
 			case SDL_MOUSEMOTION:
 				Input::SetMousePosition(event.motion.x, event.motion.y);
