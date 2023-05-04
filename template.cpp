@@ -147,7 +147,7 @@ mat4 mat4::rotatez( const float a )
 
 void NotifyUser( char* s )
 {
-	HWND hApp = FindWindow(nullptr, TemplateVersion);
+	HWND hApp = FindWindow(nullptr, WindowTitle);
 	MessageBox( hApp, s, "ERROR", MB_OK );
 	exit( 0 );
 }
@@ -326,7 +326,7 @@ int main( int argc, char **argv )
 #ifdef FULLSCREEN
 	window = SDL_CreateWindow(TemplateVersion, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_FULLSCREEN );
 #else
-	window = SDL_CreateWindow(TemplateVersion, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_SHOWN );
+	window = SDL_CreateWindow(WindowTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ScreenWidth, ScreenHeight, SDL_WINDOW_SHOWN );
 #endif
 	surface = new Surface( ScreenWidth, ScreenHeight );
 	surface->Clear( 0 );
@@ -338,6 +338,7 @@ int main( int argc, char **argv )
 	game->SetTarget( surface );
 	timer t;
 	t.reset();
+	bool fullscreen = false;
 	while (!exitapp) 
 	{
 	#ifdef ADVANCEDGL
@@ -388,6 +389,15 @@ int main( int argc, char **argv )
 				{
 					exitapp = 1;
 					// find other keys here: http://sdl.beuc.net/sdl.wiki/SDLKey
+				} else if (event.key.keysym.sym == SDLK_F11)
+				{
+					fullscreen = !fullscreen;
+					if (fullscreen) {
+						SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN_DESKTOP);
+					}
+					else {
+						SDL_SetWindowFullscreen(window, 0);
+					}
 				}
 				Input::SetKeyState(event.key.keysym.sym, true);
 				break;

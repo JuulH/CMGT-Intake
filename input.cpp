@@ -34,7 +34,7 @@ namespace Tmpl8 {
 		return mouseStates[button] == 2;
 	}
 
-	// 0 = released, 1 = pressed, 2 = held, 3 = released
+	// 0 = inactive, 1 = pressed, 2 = held, 3 = released
 	void Input::SetKeyState(int key, bool state) {
 		if (key < 0 || key > keys) return;
 		if (keyStates[key] == 2 && state) return; // Key already held

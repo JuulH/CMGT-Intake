@@ -414,7 +414,8 @@ void Sprite::Draw( Surface* a_Target, int a_X, int a_Y )
 				for ( int x = xs; x < width; x++ )
 				{
 					const Pixel c1 = *(src + x);
-					if (c1 & 0xffffff) *(dest + addr + x) = c1;
+					//if (c1 & 0xffffff) *(dest + addr + x) = c1; // Skip black pixels
+					if ((c1 & 0xff000000) != 0) *(dest + addr + x) = c1; // Skip transparent pixels
 				}
 			}
 			addr += dpitch;
@@ -431,7 +432,8 @@ void Sprite::DrawScaled( int a_X, int a_Y, int a_Width, int a_Height, Surface* a
 		int u = (int)((float)x * ((float)m_Width / (float)a_Width));
 		int v = (int)((float)y * ((float)m_Height / (float)a_Height));
 		Pixel color = GetBuffer()[u + v * m_Pitch];
-		if (color & 0xffffff) a_Target->GetBuffer()[a_X + x + ((a_Y + y) * a_Target->GetPitch())] = color;
+		//if (color & 0xffffff) a_Target->GetBuffer()[a_X + x + ((a_Y + y) * a_Target->GetPitch())] = color; // Skip black pixels
+		if ((color & 0xff000000) != 0) a_Target->GetBuffer()[a_X + x + ((a_Y + y) * a_Target->GetPitch())] = color; // Skip transparent pixels
 	}
 }
 
