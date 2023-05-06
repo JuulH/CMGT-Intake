@@ -30,6 +30,7 @@ private:
 	vec2 mouseEnd;
 	vec2 direction;
 	vec2 previous = vec2(9999, 9999);
+	bool ignoreBounce = false;
 };
 
 

@@ -20,7 +20,7 @@ namespace Tmpl8 {
 	}
 
 	void Ground::Draw(Tmpl8::Surface* screen) {
-		screen->Line(start.x, start.y, end.x, end.y, color);
+		screen->LineFill(start.x, start.y, end.x, end.y, color);
 		screen->Box(middle.x - 5, middle.y - 5, middle.x + 5, middle.y + 5, 0xff0000);
 	}
 

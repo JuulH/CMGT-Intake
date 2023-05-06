@@ -16,8 +16,8 @@ public:
 	vec2 middle;
 	vec2 start;
 	vec2 end;
-private:
 	Pixel color;
+private:
 };
 
 }

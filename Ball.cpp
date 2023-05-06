@@ -7,7 +7,7 @@ namespace Tmpl8{
 
 void Ball::HandleInput(Tmpl8::Surface* screen) {
 	mousePosition = Input::GetMousePosition();
-	bool ballMoving = v.length() > 0.04f;
+	bool ballMoving = v.length() > 0.03f;
 
 	if (!ballMoving) {
 		if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
@@ -37,23 +37,23 @@ void Ball::Update(float deltaTime) {
 	a.y = -v.y * friction + gravity;
 
 	// Stop ball if velocity is too low
-	/*if (abs(v.x) < 0.025f) v.x = 0;
-	if (a.y == .0035f && abs(v.y) < 0.01f) v.y = 0;*/
+	//if (abs(v.x) < 0.008f) v.x = 0;
+	//if (a.y == .0035f && abs(v.y) < 0.025f) v.y = 0;
 
 	// Velocity
 	v.x += a.x * deltaTime;
 	v.y += a.y * deltaTime;
 
-	if (v.length() < 0.007f) v.x = 0, v.y = 0;
-
-	// Stop ball if length of velocity (using previous position) is too low
-	//if (abs((pos - previous).length() * deltaTime) < 0.0001f) v = vec2(0, 0);
+	//if (v.length() < 0.007f) v.x = 0, v.y = 0;
 
 	// Position
 	pos.x += v.x * deltaTime;
 	pos.y += v.y * deltaTime;
 
-	previous = pos;
+	/*previous += pos;
+	if (ignoreBounce) {
+		if ((previous - pos).length() > 0.3f) ignoreBounce = false;
+	}*/
 }
 
 void Ball::ScreenCollisions() {
@@ -76,6 +76,8 @@ void Ball::ScreenCollisions() {
 }
 
 void Ball::GroundCollisions(Ground g) {
+	if(pos.x - 1 > g.end.x || pos.x + 1 < g.start.x) return;
+
 	float dx = pos.x - g.middle.x;
 	float dy = pos.y - g.middle.y;
 
@@ -87,9 +89,10 @@ void Ball::GroundCollisions(Ground g) {
 	float velx_ = cosine * v.x + sine * v.y;
 	float vely_ = -sine * v.x + cosine * v.y;
 
-	if (dy_ > -radius && pos.x >= g.start.x && pos.x <= g.end.x) {
+	if (dy_ > -radius && pos.x + radius >= g.start.x && pos.x - radius <= g.end.x) {
 		dy_ = -radius;
-		vely_ *= -bounciness;
+		if (abs(vely_) > 0.02f/* && !ignoreBounce*/) vely_ *= -bounciness;
+		else vely_ = 0;
 	}
 
 	dx = cosine * dx_ - sine * dy_;
@@ -100,10 +103,13 @@ void Ball::GroundCollisions(Ground g) {
 
 	pos.x = g.middle.x + dx;
 	pos.y = g.middle.y + dy;
+
+	/*ignoreBounce = true;
+	previous = vec2(g.middle.x + dx, g.middle.y + dy);*/
 }
 
 void Ball::Draw(Tmpl8::Surface* screen, Tmpl8::Sprite* sprite) {
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { 0, 0 });
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { 0, 2 });
 	printf("Ball:\nx: %f, y: %f\nvx: %f, vy: %f\nax: %f, ay: %f\np: %f\n", pos.x, pos.y, v.x, v.y, a.x, a.y, abs((pos - previous).length()));
 	sprite->DrawScaled(pos.x - radius, pos.y - radius, 26, 26, screen);
 }
