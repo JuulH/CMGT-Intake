@@ -2,6 +2,7 @@
 #include "input.h"
 #include "surface.h"
 #include <Windows.h>
+#include "game.h"
 
 namespace Tmpl8{
 
@@ -19,7 +20,6 @@ void Ball::HandleInput(Tmpl8::Surface* screen) {
 			mouseEnd = mousePosition;
 			direction = mouseEnd - mouseStart;
 			if (direction.length() > 300) direction = direction.normalized() * 300;
-			screen->Line(pos.x, pos.y, pos.x - direction.x, pos.y - direction.y, 0xffffff);
 		}
 
 		else if (Input::GetMouseButtonUp(SDL_BUTTON_LEFT) && startedAiming) {
@@ -27,6 +27,7 @@ void Ball::HandleInput(Tmpl8::Surface* screen) {
 			v.x = direction.x;
 			v.y = direction.y;
 			startedAiming = false;
+			strokes++;
 		}
 	}
 }
@@ -54,6 +55,9 @@ void Ball::Update(float deltaTime) {
 	if (ignoreBounce) {
 		if ((previous - pos).length() > 0.3f) ignoreBounce = false;
 	}*/
+
+	// Reset ball if it falls off the screen
+	if (pos.x > ScreenWidth + radius || pos.x < -radius) Reset();
 }
 
 void Ball::ScreenCollisions() {
@@ -76,7 +80,10 @@ void Ball::ScreenCollisions() {
 }
 
 void Ball::GroundCollisions(Ground g) {
-	if(pos.x - 1 > g.end.x || pos.x + 1 < g.start.x) return;
+	//if(pos.x - radius > g.end.x || pos.x + radius < g.start.x) return;
+	float upperY = Min<int>(g.start.y, g.end.y);
+	float lowerY = Max<int>(g.start.y, g.end.y);
+	if (abs(g.angle) > PI * .1f && (pos.y + radius - 6 < upperY || pos.y - radius + 6 > lowerY)) return;
 
 	float dx = pos.x - g.middle.x;
 	float dy = pos.y - g.middle.y;
@@ -89,10 +96,10 @@ void Ball::GroundCollisions(Ground g) {
 	float velx_ = cosine * v.x + sine * v.y;
 	float vely_ = -sine * v.x + cosine * v.y;
 
-	if (dy_ > -radius && pos.x + radius >= g.start.x && pos.x - radius <= g.end.x) {
+	if (dy_ > -radius && pos.x + radius >= g.start.x && pos.x - radius < g.end.x) {
+		activeGroundId = g.id;
 		dy_ = -radius;
-		if (abs(vely_) > 0.02f/* && !ignoreBounce*/) vely_ *= -bounciness;
-		else vely_ = 0;
+		vely_ *= -bounciness;
 	}
 
 	dx = cosine * dx_ - sine * dy_;
@@ -103,15 +110,40 @@ void Ball::GroundCollisions(Ground g) {
 
 	pos.x = g.middle.x + dx;
 	pos.y = g.middle.y + dy;
+}
 
-	/*ignoreBounce = true;
-	previous = vec2(g.middle.x + dx, g.middle.y + dy);*/
+void Ball::VerticalCollisions(VerticalGround g) {
+	if(pos.x + radius < g.start.x || pos.x - radius > g.end.x) return;
+	float upperY = Min<int>(g.start.y, g.end.y);
+	float lowerY = Max<int>(g.start.y, g.end.y);
+	if (pos.y + radius < upperY || pos.y - radius > lowerY) return;
+
+	if (v.x > 0 && !g.left) {
+		activeGroundId = g.id;
+		pos.x = g.start.x - radius;
+		v.x = -v.x * bounciness;
+	} else if (v.x < 0 && g.left) {
+		activeGroundId = g.id;
+		pos.x = g.end.x + radius;
+		v.x = -v.x * bounciness;
+	}
+}
+
+void Ball::Reset() {
+	pos.x = startX;
+	pos.y = 350;
+	v.x = .1, v.y = 0;
+	a.x = -.01, a.y = gravity;
+	strokes = 0;
+	activeGroundId = 0;
 }
 
 void Ball::Draw(Tmpl8::Surface* screen, Tmpl8::Sprite* sprite) {
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), { 0, 2 });
-	printf("Ball:\nx: %f, y: %f\nvx: %f, vy: %f\nax: %f, ay: %f\np: %f\n", pos.x, pos.y, v.x, v.y, a.x, a.y, abs((pos - previous).length()));
-	sprite->DrawScaled(pos.x - radius, pos.y - radius, 26, 26, screen);
+	printf("Ball:\nx: %f, y: %f\nvx: %f, vy: %f\nax: %f, ay: %f\np: %f\n\n\nStrokes: %i", pos.x, pos.y, v.x, v.y, a.x, a.y, abs((pos - previous).length()), strokes);
+	
+	if (startedAiming) screen->Line(pos.x, pos.y, pos.x - direction.x, pos.y - direction.y, 0xffffff);
+	sprite->DrawScaled(pos.x - radius - Terrain::surfaceOffset, pos.y - radius, 26, 26, screen);
 }
 
 }

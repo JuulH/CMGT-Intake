@@ -11,6 +11,8 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="Ball.cpp" />
     <ClCompile Include="Ground.cpp" />
+    <ClCompile Include="VerticalGround.cpp" />
+    <ClCompile Include="Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -23,6 +25,8 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="Ball.h" />
     <ClInclude Include="Ground.h" />
+    <ClInclude Include="VerticalGround.h" />
+    <ClInclude Include="Terrain.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

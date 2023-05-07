@@ -228,6 +228,8 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="template.cpp" />
+    <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="VerticalGround.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
@@ -236,6 +238,8 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="surface.h" />
     <ClInclude Include="template.h" />
+    <ClInclude Include="Terrain.h" />
+    <ClInclude Include="VerticalGround.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />

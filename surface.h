@@ -53,8 +53,8 @@ public:
 	// Special operations
 	void InitCharset();
 	void SetChar( int c, char* c1, char* c2, char* c3, char* c4, char* c5 );
-	void Centre( char* a_String, int y1, Pixel color );
-	void Print( char* a_String, int x1, int y1, Pixel color );
+	void Centre( char* a_String, int y1, Pixel color, int width );
+	void Print( char* a_String, int x1, int y1, Pixel color, int width );
 	void Clear( Pixel a_Color );
 	void Line( float x1, float y1, float x2, float y2, Pixel color );
 	void LineFill( float x1, float y1, float x2, float y2, Pixel color );
@@ -102,6 +102,7 @@ public:
 	// Methods
 	void Draw( Surface* a_Target, int a_X, int a_Y );
 	void DrawScaled( int a_X, int a_Y, int a_Width, int a_Height, Surface* a_Target );
+	void DrawScaledOverlay(int a_X, int a_Y, int a_Width, int a_Height, Pixel overlayColor, Surface* a_Target);
 	void SetFlags( unsigned int a_Flags ) { m_Flags = a_Flags; }
 	void SetFrame( unsigned int a_Index ) { m_CurrentFrame = a_Index; }
 	unsigned int GetFlags() const { return m_Flags; }

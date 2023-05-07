@@ -4,6 +4,7 @@
 #include "input.h"
 #include "ball.h"
 #include "ground.h"
+#include "Terrain.h"
 #include <cstdio> //printf
 #include <time.h>
 
@@ -13,50 +14,19 @@ namespace Tmpl8
 	// Initialize the application
 	// -----------------------------------------------------------
 
-	constexpr int segments = 12;
-	Ground groundSegments[segments + 3];
 
-	int holeRangeStart = 8;
-	int holeRangeEnd = 11;
-
+	Ball b;
+	Pixel background = 0x4466ff;
+	Surface backgroundSurf(ScreenWidth, ScreenHeight);
 	void Game::Init()
 	{
-		float segmentWidth = 1280 / segments;
-		float startY = 720 - 150;
+		
+		Terrain::GenerateTerrain(16);
+		Terrain::RandomHole(Terrain::segmentCount / 2 + 1, Terrain::segmentCount - 1);
+		Terrain::GenerateDecor();
+		b.Reset();
 
-		srand(time(NULL));
-		for (int i = 0; i < segments; i++) {
-			float endY = startY + rand() % 200 - 100;
-			if (endY > 720 - 150) endY -= 150;
-			groundSegments[i] = Ground(vec2(segmentWidth * i, startY), vec2(segmentWidth * (i + 1), endY), i % 2 == 0 ? 0x005500 : 0x002200);
-			startY = endY;
-		}
-
-		int holeSegment = rand() % (holeRangeEnd - holeRangeStart + 1) + holeRangeStart;
-
-		groundSegments[holeSegment].color = 0xff0000;
-
-		//// Get halfway point of hole segment
-		//float holeX = (groundSegments[holeSegment].start.x + groundSegments[holeSegment].end.x) / 2;
-		//float holeY = (groundSegments[holeSegment].start.y + groundSegments[holeSegment].end.y) / 2;
-
-		//Ground hole[] = {
-		//	Ground(vec2(holeX + -30, holeY), vec2(holeX + -30, holeY + 70), 0xffffff),
-		//	Ground(vec2(holeX + -30, holeY + 70), vec2(holeX + 30, holeY + 70), 0xffffff),
-		//	Ground(vec2(holeX + 30, holeY + 70), vec2(holeX + 30, holeY), 0xffffff),
-		//};
-
-		//groundSegments[holeSegment].end.x = hole[0].start.x;
-		//groundSegments[holeSegment].end.y = hole[0].start.y;
-
-		//groundSegments[holeSegment + 1].start.x = hole[2].end.x;
-		//groundSegments[holeSegment + 1].start.y = hole[2].end.y;
-
-		//// Add hole array to groundSegments array
-		//for (int i = 0; i < 3; i++) {
-		//	groundSegments[segments + i] = hole[i];
-		//}
-
+		backgroundSurf.Clear(background);
 	}
 	
 	// -----------------------------------------------------------
@@ -70,22 +40,81 @@ namespace Tmpl8
 	// Main application tick function
 	// -----------------------------------------------------------
 	Sprite ball(new Surface("assets/golfball.png"), 1);
-	Pixel background = 0x4466ff;
-	
-	Ball b;
+	int levelCount = 0;
+	char strokesText[14];
+	char levelText[11];
+	char fpsText[10];
+	int averageFps = 0;
+	float elapsedTime = 0;
+	float fpsUpdateTime = 1000; // ms
+	bool enterDown = false;
+	char debugText[20];
+	int activeSegment = 0;
 
 	void Game::Tick(float deltaTime)
 	{
-		screen->Clear(background);
-
-		b.HandleInput(screen);
-		b.Update(deltaTime);
-
-		for (Ground g : groundSegments) {
-			g.Draw(screen);
-			b.GroundCollisions(g);
+		// Calculate average FPS
+		elapsedTime += deltaTime;
+		if (elapsedTime > 1000) {
+			elapsedTime = 0;
+			averageFps = (int)(1 / deltaTime * 1000);
 		}
-		b.ScreenCollisions();
+
+		if (Input::GetKeyDown(SDL_SCANCODE_P)) {
+			Terrain::NextLevel();
+			//b.Reset();
+		}
+
+		if (Input::GetMouseButtonDown(SDL_BUTTON_RIGHT)) {
+			b.pos = Input::GetMousePosition();
+			b.v = vec2(0, 0);
+		}
+
+		/*screen->Clear(background);*/
+		//backgroundSurf.CopyTo(screen, 0, 0);
+
+		Terrain::Draw(screen, deltaTime);
+
+		if (Terrain::transitionDone) b.Reset();
+		if (!Terrain::transitioning) {
+			b.HandleInput(screen);
+			b.Update(deltaTime);
+			activeSegment = (int)floorf(b.pos.x / (ScreenWidth / Terrain::segmentCount));
+			sprintf(debugText, "i: %i", activeSegment);
+			//screen->Print(debugText, b.pos.x - 20, b.pos.y - 25, 0xffffff, 2);
+
+			// Collisions TODO: Move class? And reference instead of copy
+			for (VerticalGround& vg : Terrain::verticalSegments) {
+				b.VerticalCollisions(vg);
+				//screen->Print(vg.left ? "left" : "right", vg.start.x, vg.start.y, 0xffffff, 2);
+			}
+
+			b.GroundCollisions(Terrain::groundSegments[Min<int>(Terrain::segmentCount - 1, Max<int>(0, activeSegment - 1))]);
+			b.GroundCollisions(Terrain::groundSegments[Min<int>(Terrain::segmentCount - 1, Max<int>(0, activeSegment))]);
+			b.GroundCollisions(Terrain::groundSegments[Min<int>(Terrain::segmentCount - 1, Max<int>(0, activeSegment + 1))]);
+
+			//b.ScreenCollisions();
+
+			// Ground-specific interactions
+			// 0: None, 1: Hole
+			if (b.activeGroundId == 1) {
+				Terrain::NextLevel();
+				/*Terrain::GenerateTerrain(16);
+				Terrain::RandomHole(Terrain::segmentCount / 2 + 1, Terrain::segmentCount - 1);
+				Terrain::GenerateDecor();*/
+				levelCount++;
+			}
+		}
+
+
+		sprintf(strokesText, "Strokes: %d", b.strokes);
+		screen->Centre(strokesText, 50, 0xffffff, 6);
+
+		sprintf(levelText, "Level %i", levelCount);
+		screen->Centre(levelText, 20, 0xffffff, 4);
+
+		sprintf(fpsText, "FPS: %i", averageFps);
+		screen->Print(fpsText, 5, 5, 0xffffff, 2);
 
 		b.Draw(screen, &ball);
 

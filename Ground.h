@@ -8,7 +8,8 @@ class Ground
 {
 public:
 	Ground();
-	Ground(vec2 start, vec2 end, Pixel color);
+	Ground(vec2 start, vec2 end, Pixel color, int id = 0);
+	void ComputeProperties();
 	void Draw(Tmpl8::Surface* screen);
 
 	float length;
@@ -17,7 +18,7 @@ public:
 	vec2 start;
 	vec2 end;
 	Pixel color;
-private:
+	int id = 0;
 };
 
 }
