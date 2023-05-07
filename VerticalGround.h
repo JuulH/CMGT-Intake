@@ -2,7 +2,8 @@
 #include "template.h"
 #include "surface.h"
 
-namespace Tmpl8{
+namespace Tmpl8 {
+
 class VerticalGround
 {
 public:

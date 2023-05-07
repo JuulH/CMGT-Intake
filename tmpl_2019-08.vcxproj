@@ -223,6 +223,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Ball.cpp" />
+    <ClCompile Include="Button.cpp" />
     <ClCompile Include="game.cpp" />
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="input.cpp" />
@@ -233,6 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Ball.h" />
+    <ClInclude Include="Button.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="input.h" />

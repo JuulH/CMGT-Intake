@@ -13,6 +13,7 @@
     <ClCompile Include="Ground.cpp" />
     <ClCompile Include="VerticalGround.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="Button.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -27,6 +28,7 @@
     <ClInclude Include="Ground.h" />
     <ClInclude Include="VerticalGround.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="Button.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">

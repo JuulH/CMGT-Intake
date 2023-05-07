@@ -5,6 +5,7 @@
 #include "ball.h"
 #include "ground.h"
 #include "Terrain.h"
+#include "Button.h"
 #include <cstdio> //printf
 #include <time.h>
 
@@ -23,7 +24,6 @@ namespace Tmpl8
 		
 		Terrain::GenerateTerrain(16);
 		Terrain::RandomHole(Terrain::segmentCount / 2 + 1, Terrain::segmentCount - 1);
-		Terrain::GenerateDecor();
 		b.Reset();
 
 		backgroundSurf.Clear(background);
@@ -50,6 +50,12 @@ namespace Tmpl8
 	bool enterDown = false;
 	char debugText[20];
 	int activeSegment = 0;
+	bool paused = false;
+	void TogglePause() {
+		paused = !paused;
+	}
+	Sprite buttonSprite = Sprite(new Surface("assets/ui_pause_sheet.png"), 3);
+	Button pauseButton = Button(vec2(0, 0), vec2(50, 50), &buttonSprite, .25f, TogglePause);
 
 	void Game::Tick(float deltaTime)
 	{
@@ -77,7 +83,7 @@ namespace Tmpl8
 
 		if (Terrain::transitionDone) b.Reset();
 		if (!Terrain::transitioning) {
-			b.HandleInput(screen);
+			if(!pauseButton.HandleInput(Input::GetMousePosition())) b.HandleInput(screen);
 			b.Update(deltaTime);
 			activeSegment = (int)floorf(b.pos.x / (ScreenWidth / Terrain::segmentCount));
 			sprintf(debugText, "i: %i", activeSegment);
@@ -115,6 +121,9 @@ namespace Tmpl8
 
 		sprintf(fpsText, "FPS: %i", averageFps);
 		screen->Print(fpsText, 5, 5, 0xffffff, 2);
+
+		// Add button
+		pauseButton.Draw(screen);
 
 		b.Draw(screen, &ball);
 
