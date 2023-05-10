@@ -3,7 +3,6 @@
 #include "UIContainer.h"
 #include <string>
 #include <sstream>
-#include <algorithm>
 
 class UIParagraph : public UIElement
 {

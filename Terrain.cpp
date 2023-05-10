@@ -18,10 +18,10 @@ Tmpl8::Surface* Terrain::inactiveSurface = &terrainSurfaceBack;
 Tmpl8::Pixel Terrain::background = 0x4466ff;
 
 bool Terrain::transitioning = false;
-int Terrain::surfaceOffset = 0;
-float Terrain::transitionSpeed = 0.9f;
+float Terrain::surfaceOffset = 0;
+float Terrain::transitionSpeed = 0.8f;
 bool Terrain::transitionDone = false;
-int Terrain::transitionOffset = 0;
+float Terrain::transitionOffset = 0;
 
 /// <summary>
 /// Generate a new terrain with the given amount of segments.
@@ -166,13 +166,13 @@ void Terrain::Draw(Tmpl8::Surface* screen, float deltaTime, bool allowTransition
 		transitionDone = false;
 	else if (allowTransition){
 		// Calculate the eased offset based on the transition progress
-		float easedProgress = EaseInOut((float)transitionOffset / (float)ScreenWidth);
-		surfaceOffset = static_cast<int>(easedProgress * ScreenWidth);
+		float easedProgress = EaseInOut(transitionOffset / ScreenWidth);
+		surfaceOffset = easedProgress * ScreenWidth;
 
-		inactiveSurface->CopyTo(screen, -surfaceOffset, 0);
-		activeSurface->CopyTo(screen, ScreenWidth - surfaceOffset, 0);
+		inactiveSurface->CopyTo(screen, static_cast<int>(-surfaceOffset), 0);
+		activeSurface->CopyTo(screen, static_cast<int>(ScreenWidth - surfaceOffset), 0);
 
-		transitionOffset += static_cast<int>(deltaTime * transitionSpeed);
+		transitionOffset += deltaTime * transitionSpeed;
 
 		if (transitionOffset >= ScreenWidth) {
 			transitionOffset = 0;

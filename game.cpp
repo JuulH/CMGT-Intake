@@ -6,13 +6,10 @@
 #include "ground.h"
 #include "Terrain.h"
 #include "UIContainer.h"
-#include "UIElement.h"
 #include "Button.h"
 #include "UIText.h"
 #include "UIImage.h"
 #include "SDL_events.h"
-#include <cstdio> //printf
-#include <time.h>
 #include "UIParagraph.h"
 
 namespace Tmpl8
@@ -103,7 +100,7 @@ namespace Tmpl8
 	std::string h_text =
 		"The goal of the game is simple: score the ball into the hole within 3 strokes, and keep going for as long as you can in an endlessly generated golf course!"
 		" || To shoot the ball, click and hold down anywhere on the screen, and drag your mouse to aim. The ball will shoot in the direction of the line."
-		" || The different ground types can be of help or work in your disadvantage: sand will increase friction and gel increases the bounciness."
+		" || The different ground types can be of help or work in your disadvantage: sand will increase friction and stone increases the bounciness."
 		" || Thank you for playing my game!"
 		" | JuulH, 2023.";
 	UIParagraph helpText(UIContainer::CENTER, vec2(0, 0), h_text, 0xffffffff, 3, 650, 1);
@@ -243,7 +240,7 @@ namespace Tmpl8
 				}
 				
 				// Max 3 strokes per level
-				else if (!b.ballMoving && b.strokes >= 3) {
+				else if (b.v.length() <= 0.02f && b.strokes >= 3) {
 					SetState(GameOver);
 					gameOverLevelText.SetText("You reached level " + std::to_string(levelCount));
 					gameOverStrokesText.SetText("in " + std::to_string(b.totalStrokes) + " strokes!");

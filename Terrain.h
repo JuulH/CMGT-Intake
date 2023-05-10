@@ -20,12 +20,12 @@ public:
 	static std::vector<VerticalGround> verticalSegments;
 	static const Tmpl8::Pixel primaryColor = 0x005500;
 	static const Tmpl8::Pixel secondaryColor = 0x004400;
-	static const Tmpl8::Pixel sandColor = 0xcccc33;
-	static const Tmpl8::Pixel bounceColor = 0x2790db;
+	static const Tmpl8::Pixel sandColor = 0xd4ba3b;
+	static const Tmpl8::Pixel bounceColor = 0x333333;
 	static int segmentCount;
 	static bool transitioning;
 	static bool transitionDone;
-	static int surfaceOffset;
+	static float surfaceOffset;
 private:
 	static void RedrawBuffer(Tmpl8::Surface* buffer);
 	static std::vector<Tmpl8::vec2> trees;
@@ -39,6 +39,6 @@ private:
 	static Tmpl8::Sprite tree;
 	static float transitionSpeed;
 	static Tmpl8::vec2 flagPosition;
-	static int transitionOffset;
+	static float transitionOffset;
 	static int amountType;
 };
