@@ -180,6 +180,7 @@ Game* game = 0;
 SDL_Window* window = 0;
 
 #ifdef _MSC_VER
+#ifdef _DEBUG
 bool redirectIO()
 {
 	CONSOLE_SCREEN_BUFFER_INFO coninfo;
@@ -206,6 +207,7 @@ bool redirectIO()
         return false;
     return true;
 }
+#endif
 #endif
 
 #ifdef ADVANCEDGL
@@ -304,8 +306,10 @@ int main( int argc, char **argv )
 	SDL_SetHintWithPriority(SDL_HINT_RENDER_VSYNC, "0", SDL_HINT_OVERRIDE);
 
 #ifdef _MSC_VER
+#ifdef _DEBUG
     if (!redirectIO())
         return 1;
+#endif
 #endif
 	SDL_version version;
 	SDL_GetVersion(&version);

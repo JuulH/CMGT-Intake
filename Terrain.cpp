@@ -53,15 +53,16 @@ void Terrain::GenerateTerrain(int segments) {
 	int typeLen = 0;
 	int randType = 0;
 	for (int i = 0; i < segments; i++) {
-		if (amountType == 0) break;
+		if (typeLeft == 0) break;
 		if (typeLen > 0) {
 			groundSegments[i].id = randType;
 			groundSegments[i].color = randType == 2 ? sandColor : bounceColor;
 			typeLen--;
-			amountType--;
-		} else if (rand() % 100 < 10) {
+			typeLeft--;
+		}
+		else if (rand() % 100 < 7) {
 			int lower = 1;
-			int upper = amountType;
+			int upper = typeLeft;
 			typeLen = lower + (rand() % (upper - lower + 1));
 
 			lower = 2;
@@ -71,7 +72,7 @@ void Terrain::GenerateTerrain(int segments) {
 			groundSegments[i].id = randType;
 			groundSegments[i].color = randType == 2 ? sandColor : bounceColor;
 			typeLen--;
-			amountType--;
+			typeLeft--;
 		}
 	}
 
