@@ -2,6 +2,7 @@
 // IGAD/BUAS(NHTV)/UU - Jacco Bikker - 2006-2020
 
 #pragma once
+#include <string>
 
 namespace Tmpl8 {
 
@@ -53,14 +54,17 @@ public:
 	// Special operations
 	void InitCharset();
 	void SetChar( int c, char* c1, char* c2, char* c3, char* c4, char* c5 );
-	void Centre( char* a_String, int y1, Pixel color, int width );
+	//void Centre( char* a_String, int y1, Pixel color, int width );
 	void Print( char* a_String, int x1, int y1, Pixel color, int width );
+	void Print( const std::string& a_String, int x1, int y1, Pixel color, int width );
 	void Clear( Pixel a_Color );
+	void Clear( Pixel a_Color, int x, int y, int width, int height );
 	void Line( float x1, float y1, float x2, float y2, Pixel color );
 	void LineFill( float x1, float y1, float x2, float y2, Pixel color );
 	void Plot( int x, int y, Pixel c );
 	void LoadImage( char* a_File );
 	void CopyTo( Surface* a_Dst, int a_X, int a_Y );
+	void CopyToAlpha( Surface* a_Dst, int a_X, int a_Y );
 	void BlendCopyTo( Surface* a_Dst, int a_X, int a_Y );
 	void ScaleColor( unsigned int a_Scale );
 	void Box( int x1, int y1, int x2, int y2, Pixel color );
@@ -74,7 +78,7 @@ private:
 	int m_Flags{0};
 	// Static attributes for the buildin font
 	static char s_Font[51][5][6];
-	static bool fontInitialized;
+	bool fontInitialized = false;
 	int s_Transl[256]{};		
 };
 
@@ -130,7 +134,6 @@ public:
 	Font( char* a_File, char* a_Chars );
 	~Font();
 	void Print( Surface* a_Target, char* a_Text, int a_X, int a_Y, bool clip = false );
-	void Centre( Surface* a_Target, char* a_Text, int a_Y );
 	int Width( char* a_Text );
 	int Height() { return m_Surface->GetHeight(); }
 	void YClip( int y1, int y2 ) { m_CY1 = y1; m_CY2 = y2; }

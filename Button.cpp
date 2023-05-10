@@ -1,49 +1,47 @@
 #include "Button.h"
 
-namespace Tmpl8 {
-	Button::Button(vec2 _anchor, vec2 _relPos, Sprite* _sprite, float _scale, std::function<void()> _func) {
-		anchor = _anchor;
-		relPos = _relPos;
-		sprite = _sprite;
-		scale = _scale;
-		width = sprite->GetWidth() * scale;
-		height = sprite->GetHeight() * scale;
-		func = _func;
+Button::Button(UIContainer::Anchor _anchor, Tmpl8::vec2 _relPos, Tmpl8::Sprite* _sprite, float _scale, std::function<void()> _func) {
+	anchor = _anchor;
+	relPos = _relPos;
+	sprite = _sprite;
+	scale = _scale;
+	width = sprite->GetWidth() * scale;
+	height = sprite->GetHeight() * scale;
+	func = _func;
+	status = 0;
+}
 
-		pos = vec2(anchor.x + relPos.x, anchor.y + relPos.y);
-		status = 0;
-	}
-
-	bool Button::HandleInput(vec2 mousePos) {
-		// Check if mouse is within button bounds
-		if (mousePos.x > pos.x && mousePos.x < pos.x + width &&
-			mousePos.y > pos.y && mousePos.y < pos.y + height) {
-
-			status = 1; // Hovering
-			
-			// On click
-			if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
-				func();
-			} else if (Input::GetMouseButtonUp(SDL_BUTTON_LEFT)) {
-				status = 0; // Released
-			}
-
-			if (Input::GetMouseButton(SDL_BUTTON_LEFT)) {
-				status = 2; // Clicked
-			}
-			return true;
+bool Button::HandleInput(Tmpl8::vec2 mousePos) {
+	// If mouse is within bounds
+	if (mousePos.x > pos.x && mousePos.x < pos.x + width &&
+		mousePos.y > pos.y && mousePos.y < pos.y + height) {
+		
+		// Handle input
+		if (status != HOVERING && status != FOCUSED && !Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+			SetStatus(HOVERING);
+		} else if (Input::GetMouseButtonDown(SDL_BUTTON_LEFT)) {
+			SetStatus(FOCUSED);
+		} else if (Input::GetMouseButtonUp(SDL_BUTTON_LEFT)) {
+			if (status == FOCUSED) func();
+			SetStatus(HOVERING);
 		}
-		else {
-			status = 0; // Not hovering
-			return false;
-		}
-	}
 
-	void Button::Draw(Surface* screen) {
-		sprite->SetFrame(status);
-		sprite->DrawScaled(pos.x, pos.y, width, height, screen);
-		char buffer[50];
-		sprintf(buffer, "%i", status);
-		screen->Print(buffer, pos.x - 50, pos.y - 50, 0x000000, 3);
+		return true; // Prevent game input
+	}
+	else {
+		SetStatus(INACTIVE);
+		return false;
+	}
+}
+
+void Button::Draw(Tmpl8::Surface* screen, Tmpl8::vec2 position) {
+	sprite->SetFrame(status);
+	sprite->DrawScaled(pos.x, pos.y, width, height, screen);
+}
+
+void Button::SetStatus(int _status) {
+	if (status != _status) {
+		status = _status;
+		isDirty = true;
 	}
 }

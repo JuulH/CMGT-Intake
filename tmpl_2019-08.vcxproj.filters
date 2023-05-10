@@ -14,6 +14,10 @@
     <ClCompile Include="VerticalGround.cpp" />
     <ClCompile Include="Terrain.cpp" />
     <ClCompile Include="Button.cpp" />
+    <ClCompile Include="UIContainer.cpp" />
+    <ClCompile Include="UIText.cpp" />
+    <ClCompile Include="UIImage.cpp" />
+    <ClCompile Include="UIParagraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game.h" />
@@ -29,6 +33,12 @@
     <ClInclude Include="VerticalGround.h" />
     <ClInclude Include="Terrain.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="UIContainer.h" />
+    <ClInclude Include="UIElement.h" />
+    <ClInclude Include="UIText.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="UIImage.h" />
+    <ClInclude Include="UIParagraph.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
@@ -39,5 +49,11 @@
     <Text Include="_readme.txt">
       <Filter>template code</Filter>
     </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="tmpl_2019-08.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\icon.ico" />
   </ItemGroup>
 </Project>

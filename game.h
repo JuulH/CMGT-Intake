@@ -11,6 +11,10 @@ public:
 	void Init();
 	void Shutdown();
 	void Tick( float deltaTime );
+
+	//GameState gameState;
+	//void SetState(GameState state);
+	//void Restart();
 private:
 	Surface* screen;
 };

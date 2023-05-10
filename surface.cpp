@@ -6,12 +6,13 @@
 #include <cassert>
 #include <cstring>
 #include "FreeImage.h"
+#include <algorithm>
 
 namespace Tmpl8 {
 
 void NotifyUser( char* s );
 char Surface::s_Font[51][5][6];	
-bool Surface::fontInitialized = false;
+//bool Surface::fontInitialized = false;
 
 // -----------------------------------------------------------
 // True-color surface class implementation
@@ -90,11 +91,22 @@ void Surface::Clear( Pixel a_Color )
 	for ( int i = 0; i < s; i++ ) m_Buffer[i] = a_Color;
 }
 
-void Surface::Centre( char* a_String, int y1, Pixel color, int width = 1 )
+void Surface::Clear(Pixel a_Color, int x, int y, int width, int height)
 {
-	int x = (m_Width - (int)strlen( a_String ) * 6 * width) / 2;
-	Print( a_String, x, y1, color, width );
+	for (int i = y; i < y + height; i++)
+	{
+		for (int j = x; j < x + width; j++)
+		{
+			m_Buffer[i * m_Width + j] = a_Color;
+		}
+	}
 }
+
+//void Surface::Centre( char* a_String, int y1, Pixel color, int width = 1 )
+//{
+//	int x = (m_Width - (int)strlen( a_String ) * 6 * width) / 2;
+//	Print( a_String, x, y1, color, width );
+//}
 
 void Surface::Print(char* a_String, int x1, int y1, Pixel color, int width = 1)
 {
@@ -103,8 +115,51 @@ void Surface::Print(char* a_String, int x1, int y1, Pixel color, int width = 1)
 		InitCharset();
 		fontInitialized = true;
 	}
+
+	//// Text alignment
+	//int len = strlen(a_String) * 6 * width;
+	//switch (align)
+	//{
+	//	case 1: // Center
+	//		x1 -= len / 2;
+	//		break;
+	//	case 2: // Right
+	//		x1 -= len;
+	//		break;
+	//	default: // Left
+	//		break;
+	//}
+
 	Pixel* t = m_Buffer + x1 + y1 * m_Pitch;
 	for (int i = 0; i < (int)(strlen(a_String)); i++, t += 6 * width)
+	{
+		long pos = 0;
+		if ((a_String[i] >= 'A') && (a_String[i] <= 'Z')) pos = s_Transl[(unsigned short)(a_String[i] - ('A' - 'a'))];
+		else pos = s_Transl[(unsigned short)a_String[i]];
+		Pixel* a = t;
+		char* c = (char*)s_Font[pos];
+		for (int v = 0; v < 5; v++, c++, a += width * m_Pitch) {
+			for (int h = 0; h < 5 * width; h += width) {
+				if (*c++ == 'o') {
+					for (int w = 0; w < width; w++)
+						for (int j = 0; j < width; j++)
+							a[w + h + j * m_Pitch] = color, a[w + h + (j + 1) * m_Pitch] = 0;
+				}
+			}
+		}
+	}
+}
+
+void Surface::Print(const std::string& a_String, int x1, int y1, Pixel color, int width = 1)
+{
+	if (!fontInitialized)
+	{
+		InitCharset();
+		fontInitialized = true;
+	}
+
+	Pixel* t = m_Buffer + x1 + y1 * m_Pitch;
+	for (int i = 0; i < a_String.length(); i++, t += 6 * width)
 	{
 		long pos = 0;
 		if ((a_String[i] >= 'A') && (a_String[i] <= 'Z')) pos = s_Transl[(unsigned short)(a_String[i] - ('A' - 'a'))];
@@ -277,6 +332,38 @@ void Surface::CopyTo( Surface* a_Dst, int a_X, int a_Y )
 			for ( int y = 0; y < srcheight; y++ )
 			{
 				memcpy( dst, src, srcwidth * 4 );
+				dst += dstpitch;
+				src += srcpitch;
+			}
+		}
+	}
+}
+
+// Implemented to copy surfaces without background
+void Surface::CopyToAlpha(Surface* a_Dst, int a_X, int a_Y)
+{
+	Pixel* dst = a_Dst->GetBuffer();
+	Pixel* src = m_Buffer;
+	if ((src) && (dst))
+	{
+		int srcwidth = m_Width;
+		int srcheight = m_Height;
+		int srcpitch = m_Pitch;
+		int dstwidth = a_Dst->GetWidth();
+		int dstheight = a_Dst->GetHeight();
+		int dstpitch = a_Dst->GetPitch();
+		if ((srcwidth + a_X) > dstwidth) srcwidth = dstwidth - a_X;
+		if ((srcheight + a_Y) > dstheight) srcheight = dstheight - a_Y;
+		if (a_X < 0) src -= a_X, srcwidth += a_X, a_X = 0;
+		if (a_Y < 0) src -= a_Y * srcpitch, srcheight += a_Y, a_Y = 0;
+		if ((srcwidth > 0) && (srcheight > 0))
+		{
+			dst += a_X + dstpitch * a_Y;
+			for ( int y = 0; y < srcheight; y++ )
+			{
+				for (int x = 0; x < srcwidth; x++) {
+					if ((src[x] & 0xFF000000) != 0) dst[x] = src[x];
+				}
 				dst += dstpitch;
 				src += srcpitch;
 			}
@@ -491,6 +578,9 @@ void Sprite::DrawScaled( int a_X, int a_Y, int a_Width, int a_Height, Surface* a
 	}
 }
 
+/// <summary>
+/// Draw a scaled sprite with color overlay
+/// </summary>
 void Sprite::DrawScaledOverlay(int a_X, int a_Y, int a_Width, int a_Height, Pixel overlayColor, Surface* a_Target)
 {
 	if ((a_Width == 0) || (a_Height == 0)) return;
@@ -584,12 +674,6 @@ int Font::Width( char* a_Text )
 		if (c == 32) w += 4; else w += m_Width[m_Trans[c]] + 2;
 	}
 	return w;
-}
-
-void Font::Centre( Surface* a_Target, char* a_Text, int a_Y )
-{
-	int x = (a_Target->GetPitch() - Width( a_Text )) / 2;
-	Print( a_Target, a_Text, x, a_Y );
 }
  
 void Font::Print( Surface* a_Target, char* a_Text, int a_X, int a_Y, bool clip )

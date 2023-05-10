@@ -5,40 +5,44 @@
 #include "VerticalGround.h"
 #include "Terrain.h"
 
-namespace Tmpl8 {
-	class Surface;
-
 class Ball
 {
 public:
+	Ball() : ballSprite(new Tmpl8::Surface("assets/golfball.png"), 1) {};
 	void HandleInput(Tmpl8::Surface* screen);
 	void Update(float deltaTime);
 	void ScreenCollisions();
 	void GroundCollisions(Ground g);
 	void VerticalCollisions(VerticalGround v);
 	void Reset();
-	void Draw(Tmpl8::Surface* screen, Sprite* sprite);
+	void Draw(Tmpl8::Surface* screen);
+
 	int strokes = 0;
+	int totalStrokes = 0;
 	int activeGroundId = 0;
+
 	int startX = -13;
-	vec2 pos = vec2(ScreenWidth / 8, 0);
-	vec2 v;
-private:
-	float ScreenWidth = 1280;
-	float ScreenHeight = 720;
-	float gravity = 0.0035f;
-	vec2 a = vec2(0, gravity);
-	float bounciness = 0.6f;
-	float friction = 0.001f;
+	Tmpl8::vec2 pos = Tmpl8::vec2(ScreenWidth / 8, 0);
+	Tmpl8::vec2 v;
+	bool ballMoving = true;
+
 	bool startedAiming = false;
+	float frictionFactor = 1;
+	float bounceFactor = 1;
+
+private:
+	float gravity = 0.0035f;
+	float friction = 0.001f;
+	float bounciness = 0.65f;
 	float radius = 13;
-	vec2 mousePosition;
-	vec2 mouseStart;
-	vec2 mouseEnd;
-	vec2 direction;
-	vec2 previous = vec2(9999, 9999);
-	bool ignoreBounce = false;
+	Tmpl8::vec2 a = Tmpl8::vec2(0, gravity);
+	Tmpl8::Sprite ballSprite;
+
+	Tmpl8::vec2 mousePosition;
+	Tmpl8::vec2 mouseStart;
+	Tmpl8::vec2 mouseEnd;
+	Tmpl8::vec2 direction;
+
+	int bounceCollisionCount = 0;
+	int activeSegment = 0;
 };
-
-
-}

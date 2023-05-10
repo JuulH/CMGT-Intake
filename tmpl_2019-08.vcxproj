@@ -230,6 +230,10 @@
     <ClCompile Include="surface.cpp" />
     <ClCompile Include="template.cpp" />
     <ClCompile Include="Terrain.cpp" />
+    <ClCompile Include="UIContainer.cpp" />
+    <ClCompile Include="UIImage.cpp" />
+    <ClCompile Include="UIParagraph.cpp" />
+    <ClCompile Include="UIText.cpp" />
     <ClCompile Include="VerticalGround.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -238,13 +242,25 @@
     <ClInclude Include="game.h" />
     <ClInclude Include="Ground.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="surface.h" />
     <ClInclude Include="template.h" />
     <ClInclude Include="Terrain.h" />
+    <ClInclude Include="UIContainer.h" />
+    <ClInclude Include="UIElement.h" />
+    <ClInclude Include="UIImage.h" />
+    <ClInclude Include="UIParagraph.h" />
+    <ClInclude Include="UIText.h" />
     <ClInclude Include="VerticalGround.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="_readme.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="tmpl_2019-08.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="assets\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

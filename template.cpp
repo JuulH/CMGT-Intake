@@ -315,16 +315,16 @@ int main( int argc, char **argv )
 
 #ifdef ADVANCEDGL
 #ifdef FULLSCREEN
-	window = SDL_CreateWindow(TemplateVersion, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_FULLSCREEN|SDL_WINDOW_OPENGL );
+	window = SDL_CreateWindow(WindowTitle, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_FULLSCREEN|SDL_WINDOW_OPENGL );
 #else
-	window = SDL_CreateWindow(TemplateVersion, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL );
+	window = SDL_CreateWindow(WindowTitle, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_SHOWN|SDL_WINDOW_OPENGL );
 #endif
 	SDL_GLContext glContext = SDL_GL_CreateContext( window);
 	init();
 	ShowCursor( false );
 #else
 #ifdef FULLSCREEN
-	window = SDL_CreateWindow(TemplateVersion, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_FULLSCREEN );
+	window = SDL_CreateWindow(WindowTitle, 100, 100, ScreenWidth, ScreenHeight, SDL_WINDOW_FULLSCREEN );
 #else
 	window = SDL_CreateWindow(WindowTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, ScreenWidth, ScreenHeight, SDL_WINDOW_SHOWN );
 #endif
@@ -367,7 +367,7 @@ int main( int argc, char **argv )
 	#endif
 		if (firstframe)
 		{
-			game->Init();
+			game->Init(/*Game& game*/);
 			firstframe = false;
 		}
 		// calculate frame time and pass it to game->Tick

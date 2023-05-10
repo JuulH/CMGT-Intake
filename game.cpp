@@ -5,57 +5,195 @@
 #include "ball.h"
 #include "ground.h"
 #include "Terrain.h"
+#include "UIContainer.h"
+#include "UIElement.h"
 #include "Button.h"
+#include "UIText.h"
+#include "UIImage.h"
+#include "SDL_events.h"
 #include <cstdio> //printf
 #include <time.h>
+#include "UIParagraph.h"
 
 namespace Tmpl8
 {
 	// -----------------------------------------------------------
 	// Initialize the application
 	// -----------------------------------------------------------
-
-
 	Ball b;
-	Pixel background = 0x4466ff;
-	Surface backgroundSurf(ScreenWidth, ScreenHeight);
+
+	enum GameState {
+		MainMenu,
+		Playing,
+		Paused,
+		GameOver,
+	};
+
+	GameState gameState;
+
+	void SetState(GameState state) {
+		gameState = state;
+	}
+
+	int levelCount = 0;
+
+	/* ----------------------- UI -----------------------------------*/
+	Sprite pauseSprite = Sprite(new Surface("assets/ui_pause.png"), 3);
+	Sprite restartSprite = Sprite(new Surface("assets/ui_restart.png"), 3);
+	Sprite resumeSprite = Sprite(new Surface("assets/ui_resume.png"), 3);
+	Sprite quitSprite = Sprite(new Surface("assets/ui_quit.png"), 3);
+	Sprite playSprite = Sprite(new Surface("assets/ui_play.png"), 3);
+	Sprite logoSprite = Sprite(new Surface("assets/logo-banner.png"), 1);
+	Sprite menuSprite = Sprite(new Surface("assets/ui_menu.png"), 3);
+	Sprite windowSprite = Sprite(new Surface("assets/ui_window.png"), 1);
+	Sprite helpSprite = Sprite(new Surface("assets/ui_help.png"), 3);
+	Sprite closeSprite = Sprite(new Surface("assets/ui_close.png"), 3);
+
+	bool pausedGame = false;
+	void TogglePause() {
+		pausedGame = !pausedGame;
+		if (pausedGame) {
+			SetState(Paused);
+		}
+		else {
+			SetState(Playing);
+		}
+	}
+
+	UIContainer* gameMenu;
+	Button pauseButton(UIContainer::BOTTOM_LEFT, vec2(20, -20), &pauseSprite, .75f, TogglePause);
+	UIText strokesText(UIContainer::TOP_CENTER, vec2(0, 50), "Strokes: 0", 0xffffffff, 6);
+	UIText levelText(UIContainer::TOP_CENTER, vec2(0, 20), "Level 1", 0xffffffff, 4);
+	UIText fpsText(UIContainer::TOP_LEFT, vec2(5, 5), "FPS: 0", 0xffffffff, 2);
+
+	void Restart() {
+		Terrain::GenerateTerrain(16);
+		Terrain::RandomHole(Terrain::segmentCount / 2 + 1, Terrain::segmentCount - 1);
+		b.Reset();
+		b.strokes = 0;
+		levelCount = 0;
+
+		strokesText.SetText("Strokes: 0");
+		levelText.SetText("Level 1");
+		pausedGame = false;
+		SetState(Playing);
+	}
+
+	UIContainer* gameOverMenu;
+	UIText gameOverText(UIContainer::CENTER, vec2(0, -160), "Game Over!", 0xffffffff, 10);
+	UIText gameOverLevelText(UIContainer::CENTER, vec2(0, -90), "You reached level 0", 0xffffffff, 6);
+	UIText gameOverStrokesText(UIContainer::CENTER, vec2(0, -50), "in 0 strokes!", 0xffffffff, 4);
+	Button restartButton(UIContainer::CENTER, vec2(0, 50), &restartSprite, 1, Restart);
+	SDL_Event quitEvent{ SDL_QUIT };
+	Button menuButton2(UIContainer::CENTER, vec2(0, 150), &menuSprite, 1, []() {SetState(MainMenu); });
+	Button quitButton(UIContainer::CENTER, vec2(0, 250), &quitSprite, 1, []() {SDL_PushEvent(&quitEvent);});
+
+	UIContainer* pauseMenu;
+	UIText pauseText(UIContainer::CENTER, vec2(0, -180), "Paused", 0xffffffff, 9);
+	Button resumeButton(UIContainer::CENTER, vec2(0, -50), &resumeSprite, 1, TogglePause);
+	Button menuButton(UIContainer::CENTER, vec2(0, 50), &menuSprite, 1, []() {SetState(MainMenu); });
+	Button quitButton2(UIContainer::CENTER, vec2(0, 150), &quitSprite, 1, []() {SDL_PushEvent(&quitEvent);});
+
+	UIContainer* mainMenu;
+	UIImage logo(UIContainer::CENTER, vec2(0, -150), &logoSprite, .7f);
+	Button playButton(UIContainer::CENTER, vec2(0, 50), &playSprite, 1, []() {Restart();});
+	UIImage helpWindow(UIContainer::CENTER, vec2(0, 0), &windowSprite, 1);
+	Button quitButton3(UIContainer::CENTER, vec2(0, 250), &quitSprite, 1, []() {SDL_PushEvent(&quitEvent); });
+
+	std::string h_text =
+		"The goal of the game is simple: score the ball into the hole within 3 strokes, and keep going for as long as you can in an endlessly generated golf course!"
+		" || To shoot the ball, click and hold down anywhere on the screen, and drag your mouse to aim. The ball will shoot in the direction of the line."
+		" || The different ground types can be of help or work in your disadvantage: sand will increase friction and gel increases the bounciness."
+		" || Thank you for playing my game!"
+		" | JuulH, 2023.";
+	UIParagraph helpText(UIContainer::CENTER, vec2(0, 0), h_text, 0xffffffff, 3, 650, 1);
+	
+	Button helpButton(UIContainer::CENTER, vec2(0, 150), &helpSprite, 1, []() {});
+	Button closeButton(UIContainer::CENTER, vec2(0, 280), &closeSprite, 1, []() {});
+	void ToggleHelp() {
+		bool active = helpWindow.active;
+		helpWindow.active = !active;
+		closeButton.active = !active;
+		helpText.active = !active;
+
+		playButton.active = active;
+		helpButton.active = active;
+		quitButton3.active = active;
+		mainMenu->ForceRedraw();
+	}
+
+	Sprite tiling(new Surface("assets/tiling.png"), 1);
+	Surface tileBackground = Surface(ScreenWidth + ScreenWidth / 7, ScreenWidth + ScreenWidth / 7);
+	float txOffset = 0;
+	float tyOffset = 0;
+
+	/* ----------------------- END UI -----------------------------------*/
+
 	void Game::Init()
 	{
-		
+		helpButton.SetFunc(ToggleHelp);
+		closeButton.SetFunc(ToggleHelp);
+		SetState(MainMenu);
+
 		Terrain::GenerateTerrain(16);
 		Terrain::RandomHole(Terrain::segmentCount / 2 + 1, Terrain::segmentCount - 1);
 		b.Reset();
 
-		backgroundSurf.Clear(background);
+		// Set UIElements to UIContainers
+		helpWindow.active = false;
+		closeButton.active = false;
+		helpText.active = false;
+
+		gameMenu = new UIContainer(ScreenWidth, ScreenHeight, {
+			&pauseButton,
+			&strokesText,
+			&levelText,
+			&fpsText,
+		});
+
+		gameOverMenu = new UIContainer(ScreenWidth, ScreenHeight, {
+			&gameOverText,
+			&gameOverLevelText,
+			&gameOverStrokesText,
+			&restartButton,
+			&quitButton,
+			&fpsText,
+			&menuButton2
+		});
+
+		pauseMenu = new UIContainer(ScreenWidth, ScreenHeight, {
+			&pauseButton,
+			&pauseText,
+			&resumeButton,
+			&quitButton2,
+			&fpsText,
+			&menuButton
+		});
+
+		mainMenu = new UIContainer(ScreenWidth, ScreenHeight, {
+			&logo,
+			&playButton,
+			&quitButton3,
+			&helpButton,
+			&helpWindow,
+			&closeButton,
+			&helpText,
+			&fpsText
+		});
+
+		tiling.DrawScaled(0, 0, ScreenWidth + ScreenWidth / 7, ScreenWidth + ScreenWidth / 7, &tileBackground);
 	}
 	
 	// -----------------------------------------------------------
 	// Close down application
 	// -----------------------------------------------------------
-	void Game::Shutdown()
-	{
-	}
+	void Game::Shutdown() {}
 
 	// -----------------------------------------------------------
 	// Main application tick function
 	// -----------------------------------------------------------
-	Sprite ball(new Surface("assets/golfball.png"), 1);
-	int levelCount = 0;
-	char strokesText[14];
-	char levelText[11];
-	char fpsText[10];
 	int averageFps = 0;
 	float elapsedTime = 0;
-	float fpsUpdateTime = 1000; // ms
-	bool enterDown = false;
-	char debugText[20];
-	int activeSegment = 0;
-	bool paused = false;
-	void TogglePause() {
-		paused = !paused;
-	}
-	Sprite buttonSprite = Sprite(new Surface("assets/ui_pause_sheet.png"), 3);
-	Button pauseButton = Button(vec2(0, 0), vec2(50, 50), &buttonSprite, .25f, TogglePause);
 
 	void Game::Tick(float deltaTime)
 	{
@@ -64,74 +202,80 @@ namespace Tmpl8
 		if (elapsedTime > 1000) {
 			elapsedTime = 0;
 			averageFps = (int)(1 / deltaTime * 1000);
+			fpsText.SetText("FPS: " + std::to_string(averageFps));
 		}
 
-		if (Input::GetKeyDown(SDL_SCANCODE_P)) {
-			Terrain::NextLevel();
-			//b.Reset();
-		}
+		vec2 mousePosition = Input::GetMousePosition();
 
-		if (Input::GetMouseButtonDown(SDL_BUTTON_RIGHT)) {
-			b.pos = Input::GetMousePosition();
-			b.v = vec2(0, 0);
-		}
+		// Game state machine
+		switch (gameState) {
+		case MainMenu:
+			// Scrolling background
+			txOffset += deltaTime * .025;
+			tyOffset -= deltaTime * .025;
+			if (txOffset > 182) txOffset = 0;
+			if (tyOffset < -182) tyOffset = 0;
+			tileBackground.CopyTo(screen, txOffset - 183, tyOffset);
 
-		/*screen->Clear(background);*/
-		//backgroundSurf.CopyTo(screen, 0, 0);
+			mainMenu->Update(deltaTime, mousePosition);
+			mainMenu->Draw(screen);
+			break;
 
-		Terrain::Draw(screen, deltaTime);
-
-		if (Terrain::transitionDone) b.Reset();
-		if (!Terrain::transitioning) {
-			if(!pauseButton.HandleInput(Input::GetMousePosition())) b.HandleInput(screen);
-			b.Update(deltaTime);
-			activeSegment = (int)floorf(b.pos.x / (ScreenWidth / Terrain::segmentCount));
-			sprintf(debugText, "i: %i", activeSegment);
-			//screen->Print(debugText, b.pos.x - 20, b.pos.y - 25, 0xffffff, 2);
-
-			// Collisions TODO: Move class? And reference instead of copy
-			for (VerticalGround& vg : Terrain::verticalSegments) {
-				b.VerticalCollisions(vg);
-				//screen->Print(vg.left ? "left" : "right", vg.start.x, vg.start.y, 0xffffff, 2);
-			}
-
-			b.GroundCollisions(Terrain::groundSegments[Min<int>(Terrain::segmentCount - 1, Max<int>(0, activeSegment - 1))]);
-			b.GroundCollisions(Terrain::groundSegments[Min<int>(Terrain::segmentCount - 1, Max<int>(0, activeSegment))]);
-			b.GroundCollisions(Terrain::groundSegments[Min<int>(Terrain::segmentCount - 1, Max<int>(0, activeSegment + 1))]);
-
-			//b.ScreenCollisions();
-
-			// Ground-specific interactions
-			// 0: None, 1: Hole
-			if (b.activeGroundId == 1) {
+		case Playing:
+			// Skip level
+			if (Input::GetKeyDown(SDL_SCANCODE_P)) {
 				Terrain::NextLevel();
-				/*Terrain::GenerateTerrain(16);
-				Terrain::RandomHole(Terrain::segmentCount / 2 + 1, Terrain::segmentCount - 1);
-				Terrain::GenerateDecor();*/
-				levelCount++;
 			}
+
+			if (Terrain::transitionDone) b.Reset();
+			if (!Terrain::transitioning) {
+				if (!(gameMenu->ignoreInput && !b.startedAiming)) b.HandleInput(screen);
+				strokesText.SetText("Strokes: " + std::to_string(b.strokes) + "/3");
+
+				b.Update(deltaTime);
+
+				// Check if ball is in hole
+				if (b.activeGroundId == 1) {
+					Terrain::NextLevel();
+					b.strokes = 0;
+					levelCount++;
+					levelText.SetText("Level " + std::to_string(levelCount));
+				}
+				
+				// Max 3 strokes per level
+				else if (!b.ballMoving && b.strokes >= 3) {
+					SetState(GameOver);
+					gameOverLevelText.SetText("You reached level " + std::to_string(levelCount));
+					gameOverStrokesText.SetText("in " + std::to_string(b.totalStrokes) + " strokes!");
+					gameOverMenu->ForceRedraw();
+				}
+			}
+
+			Terrain::Draw(screen, deltaTime);
+			b.Draw(screen);
+			gameMenu->Update(deltaTime, mousePosition);
+			gameMenu->Draw(screen);
+			break;
+
+		case Paused:
+			Terrain::Draw(screen, deltaTime);
+			b.Draw(screen);
+			pauseMenu->Update(deltaTime, mousePosition);
+			pauseMenu->Draw(screen);
+			break;
+
+		case GameOver:
+			// Scrolling background
+			txOffset += deltaTime * .025;
+			tyOffset -= deltaTime * .025;
+			if (txOffset > 182) txOffset = 0;
+			if (tyOffset < -182) tyOffset = 0;
+			tileBackground.CopyTo(screen, txOffset - 183, tyOffset);
+
+			gameOverMenu->Update(deltaTime, mousePosition);
+			gameOverMenu->Draw(screen);
+			break;
 		}
-
-
-		sprintf(strokesText, "Strokes: %d", b.strokes);
-		screen->Centre(strokesText, 50, 0xffffff, 6);
-
-		sprintf(levelText, "Level %i", levelCount);
-		screen->Centre(levelText, 20, 0xffffff, 4);
-
-		sprintf(fpsText, "FPS: %i", averageFps);
-		screen->Print(fpsText, 5, 5, 0xffffff, 2);
-
-		// Add button
-		pauseButton.Draw(screen);
-
-		b.Draw(screen, &ball);
-
-		//vx *= pow(0.9994f, deltaTime);
-		//vy *= pow(0.997f, deltaTime);
-
-		/*if (abs(vx) < 0.005f) vx = 0;
-		if (abs(vy) < 0.005f) vy = 0;*/
 
 		Input::Update();
 	}

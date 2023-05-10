@@ -6,8 +6,6 @@
 constexpr int keys = SDL_NUM_SCANCODES;
 constexpr int mouseButtons = 5;
 
-namespace Tmpl8 {
-
 class Input
 {
 public:
@@ -24,7 +22,7 @@ public:
 	static void SetMouseWheel(int y) { mouseWheel = y; }
 	static int GetMouseWheel() { return mouseWheel; }
 
-	static vec2 GetMousePosition() { return mousePosition; }
+	static Tmpl8::vec2 GetMousePosition() { return mousePosition; }
 	static void SetMousePosition(int x, int y) { mousePosition.x = x, mousePosition.y = y; }
 
 	static void Update();
@@ -32,8 +30,6 @@ public:
 private:
 	static int keyStates[];
 	static int mouseStates[];
-	static vec2 mousePosition;
+	static Tmpl8::vec2 mousePosition;
 	static int mouseWheel;
 };
-
-}
