@@ -2,17 +2,21 @@
 
 std::vector<Ground> Terrain::groundSegments;
 std::vector<VerticalGround> Terrain::verticalSegments;
-std::vector<Tmpl8::vec2> Terrain::trees;
 int Terrain::segmentCount;
+int Terrain::amountType = 4;
+
+std::vector<Tmpl8::vec2> Terrain::trees;
 Tmpl8::vec2 Terrain::flagPosition;
+Tmpl8::Sprite Terrain::flag(new Tmpl8::Surface("assets/flag.png"), 1);
+Tmpl8::Sprite Terrain::tree(new Tmpl8::Surface("assets/tree.png"), 1);
+
 int Terrain::activePage = 0;
 Tmpl8::Surface Terrain::terrainSurfaceFront(ScreenWidth, ScreenHeight);
 Tmpl8::Surface Terrain::terrainSurfaceBack(ScreenWidth, ScreenHeight);
 Tmpl8::Surface* Terrain::activeSurface = &terrainSurfaceFront;
 Tmpl8::Surface* Terrain::inactiveSurface = &terrainSurfaceBack;
 Tmpl8::Pixel Terrain::background = 0x4466ff;
-Tmpl8::Sprite Terrain::flag(new Tmpl8::Surface("assets/flag.png"), 1);
-Tmpl8::Sprite Terrain::tree(new Tmpl8::Surface("assets/tree.png"), 1);
+
 bool Terrain::transitioning = false;
 int Terrain::surfaceOffset = 0;
 float Terrain::transitionSpeed = 0.9f;
@@ -29,10 +33,10 @@ void Terrain::GenerateTerrain(int segments) {
 	groundSegments.clear();
 	segmentCount = segments;
 
-	float segmentWidth = ScreenWidth / segments;
+	float segmentWidth = static_cast<float>(ScreenWidth / segments);
 	float startY = ScreenHeight - 300;
 
-	srand(time(NULL)); // Seed random number generator
+	srand(static_cast<int>(time(NULL))); // Seed random number generator
 	for (int i = 0; i < segments; i++) {
 		// Randomize endY within limits
 		float endY = startY + rand() % 200 - 100;
@@ -45,7 +49,7 @@ void Terrain::GenerateTerrain(int segments) {
 	}
 
 	// Random chance for other terrain types per level
-	int amountType = 4;
+	int typeLeft = amountType;
 	int typeLen = 0;
 	int randType = 0;
 	for (int i = 0; i < segments; i++) {
@@ -145,28 +149,29 @@ void Terrain::GenerateDecor() {
 	}
 }
 
+// Ease in-out modifier adapted from https://easings.net/#easeInOutQuad
 float EaseInOut(float t) {
-	if (t <= 0.5) {
+	if (t <= 0.5f) {
 		return 2 * t * t;
 	}
 	else {
-		t -= 0.5;
-		return 2 * t * (1 - t) + 0.5;
+		t -= 0.5f;
+		return 2 * t * (1 - t) + 0.5f;
 	}
 }
 
-void Terrain::Draw(Tmpl8::Surface* screen, float deltaTime) {
+void Terrain::Draw(Tmpl8::Surface* screen, float deltaTime, bool allowTransition = true) {
 	if (!transitioning) activeSurface->CopyTo(screen, 0, 0),
 		transitionDone = false;
-	else {
+	else if (allowTransition){
 		// Calculate the eased offset based on the transition progress
 		float easedProgress = EaseInOut((float)transitionOffset / (float)ScreenWidth);
-		surfaceOffset = easedProgress * ScreenWidth;
+		surfaceOffset = static_cast<int>(easedProgress * ScreenWidth);
 
 		inactiveSurface->CopyTo(screen, -surfaceOffset, 0);
 		activeSurface->CopyTo(screen, ScreenWidth - surfaceOffset, 0);
 
-		transitionOffset += deltaTime * transitionSpeed;
+		transitionOffset += static_cast<int>(deltaTime * transitionSpeed);
 
 		if (transitionOffset >= ScreenWidth) {
 			transitionOffset = 0;
@@ -184,7 +189,7 @@ void Terrain::Draw(Tmpl8::Surface* screen, float deltaTime) {
 void Terrain::RedrawBuffer(Tmpl8::Surface* buffer) {
 	buffer->Clear(background);
 	for (Tmpl8::vec2 t : trees) {
-		tree.DrawScaledOverlay(t.x, t.y, 300 / 4, 559 / 4, primaryColor, buffer);
+		tree.DrawScaledOverlay(static_cast<int>(t.x), static_cast<int>(t.y), 300 / 4, 559 / 4, primaryColor, buffer);
 	}
 	for (Ground g : Terrain::groundSegments) {
 		g.Draw(buffer);
@@ -193,7 +198,7 @@ void Terrain::RedrawBuffer(Tmpl8::Surface* buffer) {
 		vg.Draw(buffer);
 	}
 
-	flag.DrawScaled(flagPosition.x - 10, flagPosition.y - 668 / 4, 256 / 4, 668 / 4, buffer);
+	flag.DrawScaled(static_cast<int>(flagPosition.x - 10), static_cast<int>(flagPosition.y - 668 / 4), 256 / 4, 668 / 4, buffer);
 }
 
 void Terrain::NextLevel() {

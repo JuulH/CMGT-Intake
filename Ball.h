@@ -21,7 +21,7 @@ public:
 	int totalStrokes = 0;
 	int activeGroundId = 0;
 
-	int startX = -13;
+	float startX = -13;
 	Tmpl8::vec2 pos = Tmpl8::vec2(ScreenWidth / 8, 0);
 	Tmpl8::vec2 v;
 	bool ballMoving = true;

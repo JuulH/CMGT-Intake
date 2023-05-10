@@ -14,7 +14,7 @@ public:
 	static void GenerateDecor();
 	static void NextLevel();
 
-	static void Draw(Tmpl8::Surface* screen, float deltaTime);
+	static void Draw(Tmpl8::Surface* screen, float deltaTime, bool allowTransition);
 
 	static std::vector<Ground> groundSegments;
 	static std::vector<VerticalGround> verticalSegments;
@@ -40,4 +40,5 @@ private:
 	static float transitionSpeed;
 	static Tmpl8::vec2 flagPosition;
 	static int transitionOffset;
+	static int amountType;
 };

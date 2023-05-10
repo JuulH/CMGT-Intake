@@ -102,12 +102,6 @@ void Surface::Clear(Pixel a_Color, int x, int y, int width, int height)
 	}
 }
 
-//void Surface::Centre( char* a_String, int y1, Pixel color, int width = 1 )
-//{
-//	int x = (m_Width - (int)strlen( a_String ) * 6 * width) / 2;
-//	Print( a_String, x, y1, color, width );
-//}
-
 void Surface::Print(char* a_String, int x1, int y1, Pixel color, int width = 1)
 {
 	if (!fontInitialized)
@@ -150,6 +144,7 @@ void Surface::Print(char* a_String, int x1, int y1, Pixel color, int width = 1)
 	}
 }
 
+// Print using string instead of chars
 void Surface::Print(const std::string& a_String, int x1, int y1, Pixel color, int width = 1)
 {
 	if (!fontInitialized)
@@ -246,6 +241,9 @@ void Surface::Line( float x1, float y1, float x2, float y2, Pixel c )
 	}
 }
 
+/// <summary>
+/// Draw a line and fill everything below it with a color
+/// </summary>
 void Surface::LineFill(float x1, float y1, float x2, float y2, Pixel c)
 {
 	// clip (Cohen-Sutherland, https://en.wikipedia.org/wiki/Cohen%E2%80%93Sutherland_algorithm)
@@ -339,7 +337,12 @@ void Surface::CopyTo( Surface* a_Dst, int a_X, int a_Y )
 	}
 }
 
-// Implemented to copy surfaces without background
+/// <summary>
+/// Copy surfaces to another without a background
+/// </summary>
+/// <param name="a_Dst">Destination surface</param>
+/// <param name="a_X">X Offset</param>
+/// <param name="a_Y">Y Offset</param>
 void Surface::CopyToAlpha(Surface* a_Dst, int a_X, int a_Y)
 {
 	Pixel* dst = a_Dst->GetBuffer();

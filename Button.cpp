@@ -36,7 +36,7 @@ bool Button::HandleInput(Tmpl8::vec2 mousePos) {
 
 void Button::Draw(Tmpl8::Surface* screen, Tmpl8::vec2 position) {
 	sprite->SetFrame(status);
-	sprite->DrawScaled(pos.x, pos.y, width, height, screen);
+	sprite->DrawScaled(static_cast<int>(pos.x), static_cast<int>(pos.y), static_cast<int>(width), static_cast<int>(height), screen);
 }
 
 void Button::SetStatus(int _status) {

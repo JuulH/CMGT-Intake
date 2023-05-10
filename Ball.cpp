@@ -106,15 +106,15 @@ void Ball::ScreenCollisions() {
 /// <param name="g">Ground segment to check for collisions</param>
 void Ball::GroundCollisions(Ground g) {
 	//if(pos.x - radius > g.end.x || pos.x + radius < g.start.x) return; // Not needed anymore as we only check the current, previous and next segment
-	float upperY = Tmpl8::Min<int>(g.start.y, g.end.y);
-	float lowerY = Tmpl8::Max<int>(g.start.y, g.end.y);
+	float upperY = Tmpl8::Min<float>(g.start.y, g.end.y);
+	float lowerY = Tmpl8::Max<float>(g.start.y, g.end.y);
 	if (abs(g.angle) > Tmpl8::PI * .1f && (pos.y + radius - 6 < upperY || pos.y - radius + 6 > lowerY)) return; // Crude fix for faulty collisions
 
 	float dx = pos.x - g.middle.x;
 	float dy = pos.y - g.middle.y;
 
-	float cosine = cos(g.angle);
-	float sine = sin(g.angle);
+	float cosine = static_cast<float>(cos(g.angle));
+	float sine = static_cast<float>(sin(g.angle));
 
 	float dx_ = cosine * dx + sine * dy;
 	float dy_ = cosine * dy - sine * dx;
@@ -153,8 +153,8 @@ void Ball::GroundCollisions(Ground g) {
 // Vertical line collisions
 void Ball::VerticalCollisions(VerticalGround g) {
 	if(pos.x + radius < g.start.x || pos.x - radius > g.end.x) return;
-	float upperY = Tmpl8::Min<int>(g.start.y, g.end.y);
-	float lowerY = Tmpl8::Max<int>(g.start.y, g.end.y);
+	float upperY = Tmpl8::Min<float>(g.start.y, g.end.y);
+	float lowerY = Tmpl8::Max<float>(g.start.y, g.end.y);
 	if (pos.y + radius < upperY || pos.y - radius > lowerY) return;
 
 	if (v.x > 0 && !g.left) {
@@ -181,5 +181,5 @@ void Ball::Draw(Tmpl8::Surface* screen) {
 	//printf("Ball:\nx: %f, y: %f\nvx: %f, vy: %f\nax: %f, ay: %f\np: %f\n\n\nStrokes: %i", pos.x, pos.y, v.x, v.y, a.x, a.y, abs((pos - previous).length()), strokes);
 	
 	if (startedAiming) screen->Line(pos.x, pos.y, pos.x - direction.x, pos.y - direction.y, 0xffffff);
-	ballSprite.DrawScaled(pos.x - radius - Terrain::surfaceOffset, pos.y - radius, 26, 26, screen);
+	ballSprite.DrawScaled(static_cast<int>(pos.x - radius - Terrain::surfaceOffset), static_cast<int>(pos.y - radius), static_cast<int>(radius * 2), static_cast<int>(radius * 2), screen);
 }

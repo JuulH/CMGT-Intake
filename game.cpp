@@ -211,11 +211,11 @@ namespace Tmpl8
 		switch (gameState) {
 		case MainMenu:
 			// Scrolling background
-			txOffset += deltaTime * .025;
-			tyOffset -= deltaTime * .025;
+			txOffset += deltaTime * .025f;
+			tyOffset -= deltaTime * .025f;
 			if (txOffset > 182) txOffset = 0;
 			if (tyOffset < -182) tyOffset = 0;
-			tileBackground.CopyTo(screen, txOffset - 183, tyOffset);
+			tileBackground.CopyTo(screen, static_cast<int>(txOffset - 183), static_cast<int>(tyOffset));
 
 			mainMenu->Update(deltaTime, mousePosition);
 			mainMenu->Draw(screen);
@@ -251,14 +251,14 @@ namespace Tmpl8
 				}
 			}
 
-			Terrain::Draw(screen, deltaTime);
+			Terrain::Draw(screen, deltaTime, true);
 			b.Draw(screen);
 			gameMenu->Update(deltaTime, mousePosition);
 			gameMenu->Draw(screen);
 			break;
 
 		case Paused:
-			Terrain::Draw(screen, deltaTime);
+			Terrain::Draw(screen, deltaTime, false);
 			b.Draw(screen);
 			pauseMenu->Update(deltaTime, mousePosition);
 			pauseMenu->Draw(screen);
@@ -266,11 +266,11 @@ namespace Tmpl8
 
 		case GameOver:
 			// Scrolling background
-			txOffset += deltaTime * .025;
-			tyOffset -= deltaTime * .025;
+			txOffset += deltaTime * .025f;
+			tyOffset -= deltaTime * .025f;
 			if (txOffset > 182) txOffset = 0;
 			if (tyOffset < -182) tyOffset = 0;
-			tileBackground.CopyTo(screen, txOffset - 183, tyOffset);
+			tileBackground.CopyTo(screen, static_cast<int>(txOffset - 183), static_cast<int>(tyOffset));
 
 			gameOverMenu->Update(deltaTime, mousePosition);
 			gameOverMenu->Draw(screen);

@@ -8,9 +8,9 @@ UIParagraph::UIParagraph(UIContainer::Anchor _anchor, Tmpl8::vec2 _relPos, std::
 	color = _color;
 	size = _size;
     maxWidth = _maxWidth;
-    width = maxWidth;
+    width = static_cast<float>(maxWidth);
 	lineHeight = (6 + lineSpacing) * size;
-    height = lineHeight;
+    height = static_cast<float>(lineHeight);
 	SplitLines();
 }
 
@@ -19,7 +19,7 @@ void UIParagraph::Draw(Tmpl8::Surface* screen, Tmpl8::vec2 position)
 {
     for (int i = 0; i < lines.size(); i++)
     {
-        screen->Print(lines[i], position.x, position.y + (i * lineHeight), color, size);
+        screen->Print(lines[i], static_cast<int>(position.x), static_cast<int>(position.y + (i * lineHeight)), color, size);
     }
 }
 
@@ -77,8 +77,7 @@ void UIParagraph::SplitLines() {
             }
         }
     }
-    width = maxWidth;
-    height = lines.size() * 6 * size;
-    height = lineHeight * lines.size();
+    width = static_cast<float>(maxWidth);
+    height = static_cast<float>(lineHeight * lines.size());
     isDirty = true;
 }

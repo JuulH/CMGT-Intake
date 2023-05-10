@@ -23,7 +23,7 @@ public:
 	static int GetMouseWheel() { return mouseWheel; }
 
 	static Tmpl8::vec2 GetMousePosition() { return mousePosition; }
-	static void SetMousePosition(int x, int y) { mousePosition.x = x, mousePosition.y = y; }
+	static void SetMousePosition(Sint32 x, Sint32 y) { mousePosition.x = static_cast<float>(x), mousePosition.y = static_cast<float>(y); }
 
 	static void Update();
 

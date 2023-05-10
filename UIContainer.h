@@ -18,7 +18,7 @@ public:
 	void Update(float deltaTime, Tmpl8::vec2 mousePosition);
 	void ForceRedraw();
 
-	static enum Anchor {
+	enum Anchor {
 		TOP_LEFT,
 		TOP_CENTER,
 		TOP_RIGHT,
